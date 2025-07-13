@@ -505,14 +505,24 @@ export default function EnhancedTravelTemplateGenerator() {
 
   const exportTemplate = async () => {
     if (templateRef.current) {
-      const scaleX = currentLayout.dimensions.width / currentLayout.displaySize.width
-      const scaleY = currentLayout.dimensions.height / currentLayout.displaySize.height
+      // The template is rendered at 1.5x scale in the UI
+      const uiScale = 1.5
+      const uiWidth = Math.floor(currentLayout.displaySize.width * uiScale)
+      const uiHeight = Math.floor(currentLayout.displaySize.height * uiScale)
+      
+      // Calculate the scale needed to reach the target dimensions
+      const targetScale = Math.max(
+        currentLayout.dimensions.width / uiWidth,
+        currentLayout.dimensions.height / uiHeight
+      )
 
       const canvas = await html2canvas(templateRef.current, {
-        width: currentLayout.displaySize.width,
-        height: currentLayout.displaySize.height,
-        scale: Math.max(scaleX, scaleY),
+        width: uiWidth,
+        height: uiHeight,
+        scale: targetScale,
         backgroundColor: currentLayout.backgroundStyle.backgroundColor,
+        useCORS: true,
+        allowTaint: true,
       })
 
       const link = document.createElement("a")
