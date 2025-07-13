@@ -399,106 +399,6 @@ const templateFormats: TemplateLayout[] = [
       },
     ],
   },
-  {
-    id: "reel",
-    name: "Reel\n1080 x 1920 px",
-    dimensions: { width: 1080, height: 1920 },
-    displaySize: { width: 225, height: 400 },
-    backgroundStyle: {
-      backgroundColor: "#000000",
-      backgroundImage: "/images/3.jpg",
-      overlay: true,
-      overlayOpacity: 0.4,
-    },
-    elements: [
-      {
-        id: "title",
-        type: "text",
-        content: "title",
-        field: "title",
-        position: { x: 20, y: 50 },
-        size: { width: 185, height: 60 },
-        style: { ...defaultElementStyle, fontSize: 20, fontWeight: "900", color: "#ffffff", textAlign: "center" },
-      },
-      {
-        id: "destination",
-        type: "text",
-        content: "destination",
-        field: "destination",
-        position: { x: 20, y: 120 },
-        size: { width: 185, height: 25 },
-        style: { ...defaultElementStyle, fontSize: 12, color: "#fbbf24", textAlign: "center", fontWeight: "600" },
-      },
-      {
-        id: "price",
-        type: "price",
-        content: "price",
-        field: "price",
-        position: { x: 75, y: 155 },
-        size: { width: 75, height: 35 },
-        style: {
-          ...defaultElementStyle,
-          fontSize: 18,
-          fontWeight: "800",
-          color: "#000000",
-          backgroundColor: "#ffffff",
-          textAlign: "center",
-          borderRadius: 18,
-        },
-      },
-      {
-        id: "package",
-        type: "text",
-        content: "packageDetails",
-        field: "packageDetails",
-        position: { x: 20, y: 200 },
-        size: { width: 185, height: 25 },
-        style: { ...defaultElementStyle, fontSize: 11, color: "#e5e7eb", textAlign: "center" },
-      },
-      {
-        id: "highlights",
-        type: "text",
-        content: "overlays",
-        field: "overlays",
-        position: { x: 20, y: 235 },
-        size: { width: 185, height: 30 },
-        style: {
-          ...defaultElementStyle,
-          fontSize: 10,
-          color: "#ffffff",
-          backgroundColor: "#dc2626",
-          textAlign: "center",
-          padding: 8,
-          borderRadius: 15,
-          fontWeight: "600",
-        },
-      },
-      {
-        id: "plan",
-        type: "text",
-        content: "plan",
-        field: "plan",
-        position: { x: 20, y: 280 },
-        size: { width: 185, height: 60 },
-        style: {
-          ...defaultElementStyle,
-          fontSize: 10,
-          color: "#d1d5db",
-          textAlign: "center",
-          lineHeight: "1.4" as any,
-        },
-      },
-      {
-        id: "inclusions",
-        type: "text",
-        content: "inclusions",
-        field: "inclusions",
-        position: { x: 20, y: 350 },
-        size: { width: 185, height: 40 },
-        style: { ...defaultElementStyle, fontSize: 8, color: "#9ca3af", textAlign: "center" },
-      },
-    ],
-  },
 ]
 
 const fontOptions = ["Inter", "Roboto", "Playfair Display", "Montserrat", "Poppins", "Lora", "Open Sans"]
@@ -838,8 +738,7 @@ export default function EnhancedTravelTemplateGenerator() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        const newWindow = window.open("", "_blank", "width=800,height=800")
-                        if (newWindow && templateRef.current) {
+                        if (templateRef.current) {
                           // Get the stylesheets from the current document
                           const stylesheets = Array.from(document.styleSheets)
                             .map((sheet) => {
@@ -853,7 +752,75 @@ export default function EnhancedTravelTemplateGenerator() {
                             .join("");
                           // Add Tailwind CDN as fallback
                           const tailwindCdn = `<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">`;
-                          newWindow.document.write(`
+
+                          // Create the template HTML with absolute URLs
+                          const backgroundImageUrl = currentLayout.backgroundStyle.backgroundImage 
+                            ? currentLayout.backgroundStyle.backgroundImage.startsWith('/') 
+                              ? `${window.location.origin}${currentLayout.backgroundStyle.backgroundImage}`
+                              : currentLayout.backgroundStyle.backgroundImage
+                            : 'none';
+
+                          const templateHTML = `
+                            <div
+                              class="relative shadow-lg overflow-hidden"
+                              style="
+                                width: ${Math.floor(currentLayout.displaySize.width * 1.5)}px;
+                                height: ${Math.floor(currentLayout.displaySize.height * 1.5)}px;
+                                background-color: ${currentLayout.backgroundStyle.backgroundColor};
+                                background-image: ${backgroundImageUrl !== 'none' ? `url('${backgroundImageUrl}')` : 'none'};
+                                background-size: cover;
+                                background-position: center;
+                              "
+                            >
+                              ${currentLayout.backgroundStyle.overlay && currentLayout.backgroundStyle.backgroundImage ? `
+                                <div
+                                  class="absolute inset-0 bg-black"
+                                  style="opacity: ${currentLayout.backgroundStyle.overlayOpacity};"
+                                ></div>
+                              ` : ''}
+                              
+                              ${currentLayout.elements.map((element) => {
+                                const content = element.field && travelData[element.field] ? travelData[element.field] : element.content;
+                                const scale = Math.floor(currentLayout.displaySize.width * 1.5) / currentLayout.displaySize.width;
+                                
+                                const elementStyle = `
+                                  position: absolute;
+                                  left: ${element.position.x * scale}px;
+                                  top: ${element.position.y * scale}px;
+                                  width: ${element.size.width * scale}px;
+                                  height: ${element.size.height * scale}px;
+                                  font-family: ${element.style.fontFamily};
+                                  font-size: ${element.style.fontSize * scale}px;
+                                  font-weight: ${element.style.fontWeight};
+                                  color: ${element.style.color};
+                                  background-color: ${element.style.backgroundColor};
+                                  padding: ${element.style.padding * scale}px;
+                                  border-radius: ${element.style.borderRadius * scale}px;
+                                  text-align: ${element.style.textAlign};
+                                  opacity: ${element.style.opacity};
+                                  display: flex;
+                                  align-items: ${element.type === "price" ? "center" : "flex-start"};
+                                  justify-content: ${element.style.textAlign === "center" ? "center" : element.style.textAlign === "right" ? "flex-end" : "flex-start"};
+                                  line-height: ${(element.style as any).lineHeight || "normal"};
+                                  text-transform: ${(element.style as any).textTransform || "none"};
+                                  white-space: ${element.type === "text" && content.includes("\n") ? "pre-wrap" : "normal"};
+                                  overflow: hidden;
+                                  border: 2px solid transparent;
+                                  outline: none;
+                                  z-index: 1;
+                                  user-select: none;
+                                `;
+                                
+                                return `
+                                  <div style="${elementStyle}">
+                                    ${element.type === "price" && !content.startsWith("$") ? "$" : ""}${content}
+                                  </div>
+                                `;
+                              }).join('')}
+                            </div>
+                          `;
+
+                          const html = `
                             <html>
                               <head>
                                 <title>Template Preview</title>
@@ -862,10 +829,22 @@ export default function EnhancedTravelTemplateGenerator() {
                                 <style>body { background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }</style>
                               </head>
                               <body>
-                                ${templateRef.current.outerHTML}
+                                ${templateHTML}
                               </body>
                             </html>
-                          `)
+                          `;
+                          const blob = new Blob([html], { type: "text/html" });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.target = "_blank";
+                          a.rel = "noopener noreferrer";
+                          document.body.appendChild(a);
+                          a.click();
+                          setTimeout(() => {
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                          }, 1000);
                         }
                       }}
                     >
@@ -1396,9 +1375,6 @@ export default function EnhancedTravelTemplateGenerator() {
                           <p>
                             • Current: {currentLayout.dimensions.width} x {currentLayout.dimensions.height}px
                           </p>
-                          <p>• Drag elements to reposition</p>
-                          <p>• Click to select and customize</p>
-                          <p>• All elements are fully customizable</p>
                         </div>
                       </div>
                     </TabsContent>
