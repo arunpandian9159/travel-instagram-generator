@@ -548,12 +548,19 @@ export default function EnhancedTravelTemplateGenerator() {
 
     const scale = Math.floor(currentLayout.displaySize.width * 1.5) / currentLayout.displaySize.width
 
+    const maxWidth = Math.floor(currentLayout.displaySize.width * 1.5)
+    const maxHeight = Math.floor(currentLayout.displaySize.height * 1.5)
+    const left = Math.max(0, Math.min(element.position.x * scale, maxWidth - element.size.width * scale))
+    const top = Math.max(0, Math.min(element.position.y * scale, maxHeight - element.size.height * scale))
+    const width = Math.min(element.size.width * scale, maxWidth - left)
+    const height = Math.min(element.size.height * scale, maxHeight - top)
+
     const elementStyle: React.CSSProperties = {
       position: "absolute",
-      left: element.position.x * scale,
-      top: element.position.y * scale,
-      width: element.size.width * scale,
-      height: element.size.height * scale,
+      left,
+      top,
+      width,
+      height,
       fontFamily: element.style.fontFamily,
       fontSize: element.style.fontSize * scale,
       fontWeight: element.style.fontWeight,
@@ -626,9 +633,9 @@ export default function EnhancedTravelTemplateGenerator() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 w-full">
           {/* Travel Information - Left */}
-          <div className="lg:col-span-1 order-1">
+          <div className="lg:col-span-3 order-1">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -735,7 +742,7 @@ export default function EnhancedTravelTemplateGenerator() {
           </div>
 
           {/* Template Preview - Center */}
-          <div className="lg:col-span-1 order-2">
+          <div className="lg:col-span-6 order-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
@@ -880,11 +887,11 @@ export default function EnhancedTravelTemplateGenerator() {
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="flex justify-center">
                   <div
                     ref={templateRef}
-                    className="relative shadow-lg overflow-hidden"
+                    className="relative shadow-lg overflow-hidden max-w-full max-h-full"
                     style={{
                       width: `${Math.floor(currentLayout.displaySize.width * 1.5)}px`,
                       height: `${Math.floor(currentLayout.displaySize.height * 1.5)}px`,
@@ -923,7 +930,7 @@ export default function EnhancedTravelTemplateGenerator() {
           </div>
 
           {/* Template Settings - Right */}
-          <div className="lg:col-span-1 order-3 lg:sticky lg:top-8 self-start">
+          <div className="lg:col-span-3 order-3 lg:sticky lg:top-8 self-start">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
